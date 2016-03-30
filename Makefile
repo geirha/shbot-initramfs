@@ -42,39 +42,12 @@ locales += build/locales/en_US.UTF-8
 locales += build/locales/nb_NO.UTF-8
 locales += build/locales/de_DE.UTF-8
 
-evalbot: hda
-	 
-
-hda: build/bzImage initramfs.cpio.gz 
-	qemu-img create -f qcow2 hda.tmp 1M
-	./savestate hda.tmp save
-	mv hda.tmp hda
+initramfs.cpio.gz: initramfs
+	{ cd initramfs && pax -x sv4cpio -w .; } | gzip -9 > initramfs.cpio.gz
 
 clean:
 	rm -rf build/*/ initramfs/
-	rm -f build/bzImage initramfs.cpio.gz hda hda.tmp fifo *~
-
-## linux kernel
-
-sources/linux:
-	git clone git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git "$@"
-
-build/linux: sources/linux
-	rm -rf "$@"
-	mkdir -p "$@"
-	@printf 'Building linux %s.\n' "$$($(MAKE) -sC "$<" kernelversion)"
-	if [ "$$(uname -m)" = x86_64 ]; then \
-	  cp kernel64.config "$@/.config"; \
-	else \
-	  cp kernel.config "$@/.config"; \
-	fi
-	$(MAKE) -C "$<" silentoldconfig O="../../$@"
-	$(MAKE) -C "$@"
-
-build/linux/arch/x86/boot/bzImage: build/linux
-
-build/bzImage: build/linux/arch/x86/boot/bzImage
-	cp "$<" "$@"
+	rm -f initramfs.cpio.gz fifo *~
 
 ## mksh
 
@@ -271,9 +244,6 @@ build/locales/%: build/locales
 	set -x; \
 	x="$@" locale=$${x##*/} lang=$${locale%.*} enc=$${locale#"$$lang."}; \
 	localedef --no-archive -c -i "$$lang" -f "$$enc" "$@"
-
-initramfs.cpio.gz: initramfs
-	{ cd initramfs && pax -x sv4cpio -w .; } | gzip -9 > initramfs.cpio.gz
 
 initramfs: $(shells) $(awks) $(manpages) build/bin/adu build/bin/ex scripts/generate-initramfs $(locales)
 	scripts/generate-initramfs
