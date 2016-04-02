@@ -16,24 +16,30 @@ mount -t proc none /proc
 
 ldconfig
 
-stty -echo
 HOME=/root
 LOGNAME=root
 PATH=/usr/bin:/bin
-PS1='$({ echo ${_x+o}>|/proc/sysrq-trigger;set +x; } 2>/dev/null)${_x=}'
 PS2="Missing terminating quote, bracket or keyword"
 SHELL=/bin/bash
 TERM=dumb
 USER=root
-export HOME LOGNAME PATH PS1 PS2 SHELL TERM USER
+export HOME LOGNAME PATH PS2 SHELL TERM USER
 cd "$HOME"
 
-# signal the savestate script that now is the time to save the state.
-printf 'Ready\n'
-read -r shell
+if [[ " $(</proc/cmdline) " = *" irc "* ]]; then
+    stty -echo
+    PS1='$({ echo ${_x+o}>|/proc/sysrq-trigger;set +x; } 2>/dev/null)${_x=}'
+    export PS1
 
-# A bot based on evalbot should be true to its name
-eval "$shell"
+    # signal the savestate script that now is the time to save the state.
+    printf 'Ready\n'
+    read -r shell
+
+    # A bot based on evalbot should be true to its name
+    eval "$shell"
+else
+    setsid bash -l
+fi
 
 printf "(shell exited with %d)\n" "$?"
 printf o > /proc/sysrq-trigger

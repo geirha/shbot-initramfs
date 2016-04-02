@@ -1,9 +1,13 @@
-read RANDOM
-read date
-date -s "@$date" > /dev/null 2>&1
-printf %d "$RANDOM" > /dev/urandom
+case " `cat /proc/cmdline` " in
+    *" irc "*)
+        read RANDOM
+        read date
+        date -s "@$date" > /dev/null 2>&1
+        printf %d "$RANDOM" > /dev/urandom
+        unset date
+    ;;
+esac
 
-unset date
 
 # hacks to get heirloom shell and posh to exit immediately after the
 # line is run. Also, this has to be one line, else PS2 will be spewed.
