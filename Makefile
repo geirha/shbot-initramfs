@@ -1,4 +1,4 @@
-.PHONY: clean
+.PHONY: clean requirements
 
 shells = build/bin/bash+
 
@@ -42,8 +42,14 @@ locales += build/locales/en_US.UTF-8
 locales += build/locales/nb_NO.UTF-8
 locales += build/locales/de_DE.UTF-8
 
-initramfs.cpio.gz: initramfs
+initramfs.cpio.gz: requirements initramfs
 	{ cd initramfs && pax -x sv4cpio -w .; } | gzip -9 > initramfs.cpio.gz
+
+requirements:
+	@bash -c '\
+	# These commands must be available \
+	type aclocal autoconf bison cpio flex gcc git gzip make pax tar\
+	'
 
 clean:
 	rm -rf build/*/ initramfs/
@@ -57,9 +63,11 @@ manpages += build/man/man1/mksh.1
 
 build/dash-%: sources/dash
 	scripts/extract-from-git "$@"
+	touch "$@"
 
 build/posh-%: sources/posh
 	scripts/extract-from-git "$@"
+	touch "$@"
 
 sources/dash:
 	git clone git://git.kernel.org/pub/scm/utils/dash/dash.git "$@"
