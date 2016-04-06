@@ -76,6 +76,7 @@ build/mircpio: sources/mircpio
 
 
 build/bin/pax: build/mircpio
+	mkdir -p "$(@D)"
 	cp "$</pax" "$@"
 
 ## mksh
