@@ -1,5 +1,7 @@
 .PHONY: clean requirements
 
+PATH := build/bin:$(PATH)
+
 shells = build/bin/bash+
 
 bash1_version = 1.14.7
@@ -45,15 +47,36 @@ locales += build/locales/de_DE.UTF-8
 initramfs.cpio.gz: requirements initramfs
 	{ cd initramfs && pax -x sv4cpio -w .; } | gzip -9 > initramfs.cpio.gz
 
-requirements:
+requirements: build/bin/pax
 	@bash -c '\
 	# These commands must be available \
-	type aclocal autoconf bison cpio flex gcc git gzip make pax tar\
+	type aclocal autoconf bison flex gcc git gzip make pax \
 	'
 
 clean:
 	rm -rf build/*/ initramfs/
 	rm -f initramfs.cpio.gz fifo *~
+
+sources/mircpio:
+	git clone https://github.com/MirBSD/mircpio.git "$@"
+
+build/mircpio: sources/mircpio
+	rm -rf "$@"
+	mkdir -p "$@"
+	scripts/lndir "../../$<" "$@"
+	cd "$@" && \
+	for opts in '-flto=jobserver' '-fwhole-program --combine' ''; do \
+		${CC} -DLONG_OFF_T -fno-strict-aliasing $$opts \
+		    -Wl,--as-needed -o pax ar.c ar_io.c ar_subs.c buf_subs.c \
+		    cache.c cpio.c file_subs.c ftree.c gen_subs.c \
+		    getoldopt.c options.c pat_rep.c pax.c sel_subs.c \
+		    tables.c tar.c tty_subs.c; \
+		test -x pax && exit 0; \
+	done; echo >&2 Compiling failed.; exit 1
+
+
+build/bin/pax: build/mircpio
+	cp "$</pax" "$@"
 
 ## mksh
 

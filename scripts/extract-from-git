@@ -2,16 +2,9 @@
 # usage: extract-from-git build/bash-x.y.z
 # add VERBOSE to the environment for verbosity
 
-extract() {
-    if type pax >/dev/null 2>&1; then
-        pax ${VERBOSE+-v} -r "$@"
-    elif type tar >/dev/null 2>&1; then
-        tar ${VERBOSE+-v} -xf-
-    else
-        printf >&2 'Neither the standard archiver (pax) nor tar found.\n'
-        exit 1
-    fi
-}
+if [[ $VERBOSE ]]; then
+    pax() { command pax -v "$@"; }
+fi
 
 die() { local ret=$?; printf '%s\n' "$@" >&2; exit "$ret"; }
 
@@ -52,7 +45,7 @@ if [[ $ver = bash* ]]; then
     {
         cd sources/bash && 
         git archive --prefix="$1/" --format=tar "$commit"
-    } | extract
+    } | pax -r
 
     if [[ -x patches/$basever ]]; then
         cd "$1" && "../../patches/$basever"
@@ -63,7 +56,7 @@ elif [[ $ver = dash* ]]; then
     {
         cd sources/dash &&
         git archive --prefix="$1/" --format=tar "$commit"
-    } | extract
+    } | pax -r
     if [[ -x patches/$ver ]]; then
         cd "$1" && "../../patches/$ver"
     fi
@@ -73,7 +66,7 @@ elif [[ $ver = posh* ]]; then
         {
             cd sources/posh &&
             git archive --prefix="$1/" --format=tar "$commit"
-        } | extract
+        } | pax -r
         if [[ -x patches/$ver ]]; then
             cd "$1" && "../../patches/$ver"
         fi
@@ -82,7 +75,7 @@ elif [[ $ver = gawk-* ]]; then
     {
         cd sources/gawk &&
         git archive --prefix="$1/" --format=tar "$ver"
-    } | extract
+    } | pax -r
     if [[ -x patches/$ver ]]; then
         cd "$1" && "../../patches/$var"
     fi
