@@ -277,6 +277,20 @@ build/locales/%: build/locales
 	x="$@" locale=$${x##*/} lang=$${locale%.*} enc=$${locale#"$$lang."}; \
 	localedef --no-archive -c -i "$$lang" -f "$$enc" "$@"
 
-initramfs: $(shells) $(awks) $(manpages) build/bin/adu build/bin/ex scripts/generate-initramfs $(locales)
+sources/bash-builtins:
+	git clone https://github.com/geirha/bash-builtins.git "$@"
+build/bash-builtins: sources/bash-builtins build/bash-devel
+	rm -rf "$@"
+	mkdir -p "$@"
+	{ cd "$<" && git archive --format=tar HEAD; } | { cd "$@" && pax -r; }
+	$(MAKE) -C build/bash-devel prefix="../bash-headers" install-headers
+	$(MAKE) -C build/bash-devel/examples/loadables prefix="../../../bash-headers" install-dev
+	$(MAKE) -C "$@" prefix="../bash-headers"
+	for file in "$@"/*; do \
+	    [ -x "$$file" ] && [ -f "$$file" ] || continue; \
+	    cp -v "$$file" build/loadables/; \
+	done
+
+initramfs: $(shells) $(awks) $(manpages) build/bin/adu build/bin/ex scripts/generate-initramfs $(locales) build/bash-builtins
 	scripts/generate-initramfs
 
