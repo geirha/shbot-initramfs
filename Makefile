@@ -27,10 +27,10 @@ bash41_version = 4.1.17
 shells += build/bin/bash41
 bash42_version = 4.2.53
 shells += build/bin/bash42
-bash43_version = 4.3.42
+bash43_version = 4.3.46
 shells += build/bin/bash43
 
-dash_version = 0.5.8
+dash_version = 0.5.9
 shells += build/bin/dash
 
 posh_version = 0.12.3
@@ -129,11 +129,11 @@ build/bash-%: sources/bash
 
 build/bin/posh: build/posh-$(posh_version)
 	scripts/build-shell posh "$(posh_version)" posh
-	scripts/add-trigger 'p#' 'setsid posh -l' "posh-0.12.3"
+	scripts/add-trigger 'p#' 'setsid posh -l' "posh-$(posh_version)"
 
 build/bin/dash: build/dash-$(dash_version)
 	scripts/build-shell dash "$(dash_version)" dash
-	scripts/add-trigger 'd#'  'setsid dash -l' "dash-0.5.8" \
+	scripts/add-trigger 'd#'  'setsid dash -l' "dash-$(dash_version)" \
 	                    'sh#' 'setsid sh -l'   "d#"
 build/bin/bash1: build/bash-$(bash1_version)
 	scripts/build-shell bash $(bash1_version) bash1
