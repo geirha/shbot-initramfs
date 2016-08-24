@@ -22,4 +22,9 @@ sudo yum-builddep bash gawk mawk ksh mksh
 
 Should get most, if not all, build requirements down.
 
-Run make
+Run 
+```
+make
+```
+
+[kernel-howto.md](kernel-howto.md) explains how to configure and build the kernel
