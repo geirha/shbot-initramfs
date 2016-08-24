@@ -1,10 +1,9 @@
 case " `cat /proc/cmdline` " in
     *" irc "*)
-        read RANDOM
-        read date
+        read date &&
         date -s "@$date" > /dev/null 2>&1
-        printf %d "$RANDOM" > /dev/urandom
         unset date
+        [ -n "$RANDOM" ] && RANDOM=$(od -An -N4 -tu4 /dev/urandom)
     ;;
 esac
 
