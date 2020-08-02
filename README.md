@@ -32,7 +32,7 @@ To build, you'll need
 For Ubuntu/Debian
 
 ```
-sudo apt-get install build-essential ncompress qemu-system
+sudo apt-get install build-essential ncompress qemu-system libicu-dev
 sudo apt-get build-dep bash gawk mawk ksh mksh
 ```
 
