@@ -1,2 +1,2 @@
 #!/bin/sh
-printf "Sorry, I don't do whichcraft.\n" >&2
+printf "Sorry, I don't do whichcraft. Pitchforks at https://burnthewhich.github.io/.\n" >&2
